@@ -59,6 +59,7 @@ executable diagram-pins
   -- Other library packages from which modules are imported.
   build-depends:       base >= 4.7 && < 5
                      , Rasterific >= 0.6.1.1
+                     , FontyFruity >= 0.5.3.2
                      , JuicyPixels >= 3.2.8
 
   -- Directories containing source files.

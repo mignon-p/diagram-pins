@@ -3,6 +3,8 @@ import Control.Monad
 import Graphics.Rasterific
 import Graphics.Rasterific.Texture
 import Graphics.Rasterific.Transformations
+import Graphics.Text.TrueType( Font, loadFontFile )
+import System.IO.Unsafe
 
 wpiPins =
   [ Just 17
@@ -138,15 +140,37 @@ physPins =
   , Just 0
   ]
 
+myFont :: Font
+myFont = unsafePerformIO $ do
+  (Right f) <- loadFontFile "Vera.ttf"
+  return f
+
 type Drwng = Drawing PixelRGBA8 ()
 
 color r g b a = uniformTexture $ PixelRGBA8 r g b a
 
 black = color 0 0 0 0xff
+gray = color 0x80 0x80 0x80 0xff
+
+red' = PixelRGBA8 0xff 0 0 0xff
+green' = PixelRGBA8 0 0xff 0 0xff
+blue' = PixelRGBA8 0 0 0xff 0xff
+
+drawPin :: [(String, PixelRGBA8)] -> Drwng
+drawPin pairs = withTexture black $ do
+  fill $ circle (V2 0 0) 5
+  stroke 3 JoinRound (CapRound, CapRound) $ line (V2 0 0) (V2 200 0)
+  forM_ (zip pairs [0..]) $ \((str, c), i) -> do
+    withTransformation (translate $ V2 (50 + i * 50) 0) $ do
+      withTexture (uniformTexture c) $ fill $
+        roundedRectangle (V2 0 (-10)) 40 20 10 10
+      withTexture black $ printTextAt myFont (PointSize 12) (V2 5 5) str
 
 drawing :: Drwng
-drawing =
-  withTexture black $ fill $ rectangle (V2 (-20) 0) 40 400
+drawing = do
+  withTexture gray $ fill $ rectangle (V2 (-20) (-10)) 40 (20 + 20 * 32)
+  withTransformation (translate $ V2 10 10) $
+    drawPin [("Foo", red'), ("Bar", green'), ("Baz", blue')]
 
 main :: IO ()
 main = do
