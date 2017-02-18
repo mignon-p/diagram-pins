@@ -159,9 +159,12 @@ color r g b a = uniformTexture $ PixelRGBA8 r g b a
 black = color 0 0 0 0xff
 gray = color 0x80 0x80 0x80 0xff
 
+black' = PixelRGBA8 0 0 0 0xff
 red' = PixelRGBA8 0xff 0 0 0xff
 green' = PixelRGBA8 0 0xff 0 0xff
 blue' = PixelRGBA8 0 0 0xff 0xff
+white' = PixelRGBA8 0xff 0xff 0xff 0xff
+gray' = PixelRGBA8 0x80 0x80 0x80 0xff
 
 blobLen = 70
 halfBlob = blobLen / 2
@@ -169,15 +172,16 @@ halfBlob = blobLen / 2
 rowHeight = 24
 halfRow = rowHeight / 2
 
-drawPin :: [(String, PixelRGBA8)] -> Float -> Drwng
+drawPin :: [(String, PixelRGBA8, PixelRGBA8)] -> Float -> Drwng
 drawPin pairs mirror = withTexture black $ do
   fill $ circle (V2 0 0) 5
-  stroke 3 JoinRound (CapRound, CapRound) $ line (V2 0 0) (V2 200 0)
-  forM_ (zip pairs [0..]) $ \((str, c), i) -> do
+  let lineLen = 50 + (fromIntegral $ length pairs - 1) * (blobLen + 10)
+  stroke 3 JoinRound (CapRound, CapRound) $ line (V2 0 0) (V2 lineLen 0)
+  forM_ (zip pairs [0..]) $ \((str, c1, c2), i) -> do
     withTransformation (translate $ V2 (50 + i * (blobLen + 10)) 0) $ do
-      withTexture (uniformTexture c) $ fill $
+      withTexture (uniformTexture c1) $ fill $
         roundedRectangle (V2 (-halfBlob) (-10)) blobLen 20 10 10
-      withTransformation (scale mirror 1) $ withTexture black $
+      withTransformation (scale mirror 1) $ withTexture (uniformTexture c2) $
         printTextAt myFont (PointSize 12) (V2 (5 - halfBlob) 5) str
 
 otherLabel :: Int -> String
@@ -189,18 +193,18 @@ otherLabel  4 = "5v"
 otherLabel 49 = "5v"
 otherLabel  _ = "Ground"
 
-getPinInfo :: Int -> [(String, PixelRGBA8)]
+getPinInfo :: Int -> [(String, PixelRGBA8, PixelRGBA8)]
 getPinInfo pin =
   let gpio = physPins !! pin
       wpi = case gpio of
               Nothing -> Nothing
               (Just x) -> H.lookup x gpioToWpi
   in case (gpio, wpi) of
-       (Just gpio', Just wpi') -> [ ("Phys" ++ show pin, red')
-                                  , ("Gpio" ++ show gpio', green')
-                                  , ("Wpi"  ++ show wpi', blue')
+       (Just gpio', Just wpi') -> [ ("Phys" ++ show pin, black', white')
+                                  , ("Gpio" ++ show gpio', green', black')
+                                  , ("Wpi"  ++ show wpi', blue', white')
                                   ]
-       _ -> [ (otherLabel pin, red') ]
+       _ -> [ (otherLabel pin, gray', white') ]
 
 handlePin :: Int -> Drwng
 handlePin pin = do
