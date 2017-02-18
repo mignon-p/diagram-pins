@@ -156,21 +156,28 @@ red' = PixelRGBA8 0xff 0 0 0xff
 green' = PixelRGBA8 0 0xff 0 0xff
 blue' = PixelRGBA8 0 0 0xff 0xff
 
-drawPin :: [(String, PixelRGBA8)] -> Drwng
-drawPin pairs = withTexture black $ do
+blobLen = 40
+halfBlob = blobLen / 2
+
+drawPin :: [(String, PixelRGBA8)] -> Float -> Drwng
+drawPin pairs mirror = withTexture black $ do
   fill $ circle (V2 0 0) 5
   stroke 3 JoinRound (CapRound, CapRound) $ line (V2 0 0) (V2 200 0)
   forM_ (zip pairs [0..]) $ \((str, c), i) -> do
-    withTransformation (translate $ V2 (50 + i * 50) 0) $ do
+    withTransformation (translate $ V2 (50 + i * (blobLen + 10)) 0) $ do
       withTexture (uniformTexture c) $ fill $
-        roundedRectangle (V2 0 (-10)) 40 20 10 10
-      withTexture black $ printTextAt myFont (PointSize 12) (V2 5 5) str
+        roundedRectangle (V2 (-halfBlob) (-10)) blobLen 20 10 10
+      withTransformation (scale mirror 1) $ withTexture black $
+        printTextAt myFont (PointSize 12) (V2 (5 - halfBlob) 5) str
 
 drawing :: Drwng
 drawing = do
   withTexture gray $ fill $ rectangle (V2 (-20) (-10)) 40 (20 + 20 * 32)
   withTransformation (translate $ V2 10 10) $
-    drawPin [("Foo", red'), ("Bar", green'), ("Baz", blue')]
+    drawPin [("Foo", red'), ("Bar", green'), ("Baz", blue')] 1
+  withTransformation (scale (-1) 1) $
+    withTransformation (translate $ V2 10 10) $
+    drawPin [("Foo", red'), ("Bar", green'), ("Baz", blue')] (-1)
 
 main :: IO ()
 main = do
