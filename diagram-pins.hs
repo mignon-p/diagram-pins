@@ -1,11 +1,17 @@
 import Codec.Picture( PixelRGBA8( .. ), writePng )
 import Control.Monad
+import qualified Data.HashMap.Strict as H
+import Data.Maybe
 import Graphics.Rasterific
 import Graphics.Rasterific.Texture
 import Graphics.Rasterific.Transformations
 import Graphics.Text.TrueType( Font, loadFontFile )
 import System.IO.Unsafe
 
+gpioToWpi :: H.HashMap Int Int
+gpioToWpi = H.fromList $ zip (catMaybes wpiPins) [0..]
+
+wpiPins :: [Maybe Int]
 wpiPins =
   [ Just 17
   , Just 18
@@ -73,6 +79,7 @@ wpiPins =
   , Nothing
   ]
 
+physPins :: [Maybe Int]
 physPins =
   [ Nothing
   , Nothing
@@ -156,7 +163,7 @@ red' = PixelRGBA8 0xff 0 0 0xff
 green' = PixelRGBA8 0 0xff 0 0xff
 blue' = PixelRGBA8 0 0 0xff 0xff
 
-blobLen = 40
+blobLen = 70
 halfBlob = blobLen / 2
 
 drawPin :: [(String, PixelRGBA8)] -> Float -> Drwng
@@ -170,14 +177,45 @@ drawPin pairs mirror = withTexture black $ do
       withTransformation (scale mirror 1) $ withTexture black $
         printTextAt myFont (PointSize 12) (V2 (5 - halfBlob) 5) str
 
+otherLabel :: Int -> String
+otherLabel  1 = "3.3v"
+otherLabel 17 = "3.3v"
+otherLabel 50 = "3.3v"
+otherLabel  2 = "5v"
+otherLabel  4 = "5v"
+otherLabel 49 = "5v"
+otherLabel  _ = "Ground"
+
+getPinInfo :: Int -> [(String, PixelRGBA8)]
+getPinInfo pin =
+  let gpio = physPins !! pin
+      wpi = case gpio of
+              Nothing -> Nothing
+              (Just x) -> H.lookup x gpioToWpi
+  in case (gpio, wpi) of
+       (Just gpio', Just wpi') -> [ ("Phys" ++ show pin, red')
+                                  , ("Gpio" ++ show gpio', green')
+                                  , ("Wpi"  ++ show wpi', blue')
+                                  ]
+       _ -> [ (otherLabel pin, red') ]
+
+handlePin :: Int -> Drwng
+handlePin pin = do
+  let pin' = pin - 1
+      (row, side) = pin' `divMod` 2
+      mirror = side * 2 - 1
+      row' = fromIntegral row
+      mirror' = fromIntegral mirror
+      pinInfo = getPinInfo pin
+  withTransformation (scale mirror' 1) $
+    withTransformation (translate $ V2 10 (10 + row' * 20)) $
+    drawPin pinInfo mirror'
+
 drawing :: Drwng
 drawing = do
   withTexture gray $ fill $ rectangle (V2 (-20) (-10)) 40 (20 + 20 * 32)
-  withTransformation (translate $ V2 10 10) $
-    drawPin [("Foo", red'), ("Bar", green'), ("Baz", blue')] 1
-  withTransformation (scale (-1) 1) $
-    withTransformation (translate $ V2 10 10) $
-    drawPin [("Foo", red'), ("Bar", green'), ("Baz", blue')] (-1)
+  mapM_ handlePin [1..40]
+  mapM_ handlePin [49..56]
 
 main :: IO ()
 main = do

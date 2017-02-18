@@ -61,6 +61,7 @@ executable diagram-pins
                      , Rasterific >= 0.6.1.1
                      , FontyFruity >= 0.5.3.2
                      , JuicyPixels >= 3.2.8
+                     , unordered-containers >= 0.2.4 && < 0.3
 
   -- Directories containing source files.
   -- hs-source-dirs:
