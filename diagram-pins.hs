@@ -166,6 +166,9 @@ blue' = PixelRGBA8 0 0 0xff 0xff
 blobLen = 70
 halfBlob = blobLen / 2
 
+rowHeight = 24
+halfRow = rowHeight / 2
+
 drawPin :: [(String, PixelRGBA8)] -> Float -> Drwng
 drawPin pairs mirror = withTexture black $ do
   fill $ circle (V2 0 0) 5
@@ -208,19 +211,22 @@ handlePin pin = do
       mirror' = fromIntegral mirror
       pinInfo = getPinInfo pin
   withTransformation (scale mirror' 1) $
-    withTransformation (translate $ V2 10 (10 + row' * 20)) $
+    withTransformation (translate $ V2 10 (row' * rowHeight)) $
     drawPin pinInfo mirror'
 
 drawing :: Drwng
 drawing = do
-  withTexture gray $ fill $ rectangle (V2 (-20) (-10)) 40 (20 + 20 * 32)
+  withTexture gray $ do
+    fill $ rectangle (V2 (-20) (-halfRow)) 40 (20 * rowHeight)
+    fill $ rectangle (V2 (-20) (24 * rowHeight - halfRow)) 40 (4 * rowHeight)
   mapM_ handlePin [1..40]
   mapM_ handlePin [49..56]
 
 main :: IO ()
 main = do
   let white = PixelRGBA8 255 255 255 255
-      size = 800
-      img = renderDrawing size size white $
-            withTransformation (translate $ V2 400 20) $ drawing
+      w = 2 * (30 + 3 * (blobLen + 10))
+      h = 29 * rowHeight
+      img = renderDrawing (round w) (round h) white $
+            withTransformation (translate $ V2 (w / 2) rowHeight) $ drawing
   writePng "pin-diagram.png" img
