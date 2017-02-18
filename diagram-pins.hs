@@ -237,6 +237,8 @@ drawing = do
   withTexture red $ do
     printTextAt myFont (PointSize 18) (V2 (-16) (21 * rowHeight - 10)) "P1"
     printTextAt myFont (PointSize 18) (V2 (-16) (23 * rowHeight + 5)) "P5"
+    printTextAt myFont (PointSize 8) (V2 (-lineX) (lineY - 5)) "Model A/B"
+    printTextAt myFont (PointSize 8) (V2 (-lineX) (lineY + 13)) "Model A+/B+"
   withTexture gray $ do
     fill $ rectangle (V2 (-20) (-halfRow)) 40 (20 * rowHeight)
     fill $ rectangle (V2 (-20) (24 * rowHeight - halfRow)) 40 (4 * rowHeight)
