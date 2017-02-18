@@ -158,7 +158,7 @@ color r g b a = uniformTexture $ PixelRGBA8 r g b a
 
 black = color 0 0 0 0xff
 red = color 0xff 0 0 0xff
-purple = color 0xff 0 0x80 0xff
+-- purple = color 0xff 0 0x40 0xff
 gray = color 0x80 0x80 0x80 0xff
 
 black' = PixelRGBA8 0 0 0 0xff
@@ -166,6 +166,7 @@ red' = PixelRGBA8 0xff 0 0 0xff
 green' = PixelRGBA8 0 0xff 0 0xff
 blue' = PixelRGBA8 0 0 0xff 0xff
 white' = PixelRGBA8 0xff 0xff 0xff 0xff
+purple' = PixelRGBA8 0x80 0 0xff 0xff
 gray' = PixelRGBA8 0x80 0x80 0x80 0xff
 
 blobLen = 70
@@ -195,6 +196,15 @@ otherLabel  4 = "5v"
 otherLabel 49 = "5v"
 otherLabel  _ = "Ground"
 
+otherFunc :: Int -> [(String, PixelRGBA8, PixelRGBA8)]
+otherFunc  7 = [("Clock", purple', white')]
+otherFunc 40 = [("Clock", purple', white')]
+otherFunc 32 = [("PWM", purple', white')]
+otherFunc 33 = [("PWM", purple', white')]
+otherFunc 12 = [("PWM", purple', white')]
+otherFunc 35 = [("PWM", purple', white')]
+otherFunc _ = []
+
 getPinInfo :: Int -> [(String, PixelRGBA8, PixelRGBA8)]
 getPinInfo pin =
   let gpio = physPins !! pin
@@ -205,7 +215,7 @@ getPinInfo pin =
        (Just gpio', Just wpi') -> [ ("Phys" ++ show pin, black', white')
                                   , ("Gpio" ++ show gpio', green', black')
                                   , ("Wpi"  ++ show wpi', blue', white')
-                                  ]
+                                  ] ++ otherFunc pin
        _ -> [ (otherLabel pin, gray', white') ]
 
 handlePin :: Int -> Drwng
@@ -222,7 +232,7 @@ handlePin pin = do
 
 drawing :: Drwng
 drawing = do
-  let lineX = 3 * (blobLen + 10) + 15
+  let lineX = 4 * (blobLen + 10) + 15
       lineY = 13 * rowHeight - halfRow
   withTexture red $ do
     printTextAt myFont (PointSize 18) (V2 (-16) (21 * rowHeight - 10)) "P1"
@@ -239,7 +249,7 @@ drawing = do
 main :: IO ()
 main = do
   let white = PixelRGBA8 255 255 255 255
-      w = 2 * (30 + 3 * (blobLen + 10))
+      w = 2 * (30 + 4 * (blobLen + 10))
       h = 29 * rowHeight
       img = renderDrawing (round w) (round h) white $
             withTransformation (translate $ V2 (w / 2) rowHeight) $ drawing
