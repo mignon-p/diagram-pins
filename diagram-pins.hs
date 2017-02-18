@@ -157,6 +157,8 @@ type Drwng = Drawing PixelRGBA8 ()
 color r g b a = uniformTexture $ PixelRGBA8 r g b a
 
 black = color 0 0 0 0xff
+red = color 0xff 0 0 0xff
+purple = color 0xff 0 0x80 0xff
 gray = color 0x80 0x80 0x80 0xff
 
 black' = PixelRGBA8 0 0 0 0xff
@@ -220,9 +222,17 @@ handlePin pin = do
 
 drawing :: Drwng
 drawing = do
+  let lineX = 3 * (blobLen + 10) + 15
+      lineY = 13 * rowHeight - halfRow
+  withTexture red $ do
+    printTextAt myFont (PointSize 18) (V2 (-16) (21 * rowHeight - 10)) "P1"
+    printTextAt myFont (PointSize 18) (V2 (-16) (23 * rowHeight + 5)) "P5"
   withTexture gray $ do
     fill $ rectangle (V2 (-20) (-halfRow)) 40 (20 * rowHeight)
     fill $ rectangle (V2 (-20) (24 * rowHeight - halfRow)) 40 (4 * rowHeight)
+  withTexture red $
+    dashedStroke [10, 10] 2 (JoinMiter 0) (CapStraight 0, CapStraight 0) $
+    line (V2 (-lineX) lineY) (V2 lineX lineY)
   mapM_ handlePin [1..40]
   mapM_ handlePin [49..56]
 
