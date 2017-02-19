@@ -8,6 +8,8 @@ import Graphics.Rasterific.Transformations
 import Graphics.Text.TrueType( Font, loadFontFile )
 import System.IO.Unsafe
 
+import Paths_diagram_pins
+
 gpioToWpi :: H.HashMap Int Int
 gpioToWpi = H.fromList $ zip (catMaybes wpiPins) [0..]
 
@@ -149,7 +151,8 @@ physPins =
 
 myFont :: Font
 myFont = unsafePerformIO $ do
-  (Right f) <- loadFontFile "Vera.ttf"
+  vera <- getDataFileName "Vera.ttf"
+  (Right f) <- loadFontFile vera
   return f
 
 type Drwng = Drawing PixelRGBA8 ()

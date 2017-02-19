@@ -40,10 +40,12 @@ build-type:          Simple
 
 -- Extra files to be distributed with the package, such as examples or a
 -- README.
--- extra-source-files:
+extra-source-files:  README.md
 
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.10
+
+data-files:          Vera.ttf
 
 
 executable diagram-pins
@@ -51,7 +53,7 @@ executable diagram-pins
   main-is:             diagram-pins.hs
 
   -- Modules included in this executable, other than Main.
-  -- other-modules:
+  other-modules:       Paths_diagram_pins
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
