@@ -13,16 +13,16 @@ name:                diagram-pins
 version:             0.1.0.0
 
 -- A short (one-line) description of the package.
--- synopsis:
+synopsis:            generates a diagram of pin numbers for the Raspberry Pi
 
 -- A longer description of the package.
 -- description:
 
 -- The license under which the package is released.
--- license:
+license:             BSD3
 
 -- The file containing the license text.
--- license-file:        LICENSE
+license-file:        LICENSE
 
 -- The package author(s).
 author:              Patrick Pelletier
