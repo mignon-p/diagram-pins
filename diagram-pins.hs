@@ -1,5 +1,7 @@
-import Codec.Picture( PixelRGBA8( .. ), writePng )
+import Codec.Picture( PixelRGBA8( .. ), encodePngWithMetadata )
+import Codec.Picture.Metadata as M
 import Control.Monad
+import qualified Data.ByteString.Lazy as L
 import qualified Data.HashMap.Strict as H
 import Data.Maybe
 import Graphics.Rasterific
@@ -271,4 +273,5 @@ main = do
       h = 29 * rowHeight
       img = renderDrawing (round w) (round h) white $
             withTransformation (translate $ V2 (w / 2) rowHeight) $ drawing
-  writePng "pin-diagram.png" img
+      meta = M.singleton M.Software "https://github.com/ppelleti/diagram-pins"
+  L.writeFile "pin-diagram.png" $ encodePngWithMetadata meta img
