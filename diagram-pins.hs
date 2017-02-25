@@ -200,8 +200,21 @@ otherLabel 49 = "5v"
 otherLabel  _ = "Ground"
 
 otherFunc :: Int -> [(String, PixelRGBA8, PixelRGBA8)]
-otherFunc  7 = [("Clock", purple', white')]
-otherFunc 40 = [("Clock", purple', white')]
+{-
+I'm puzzled... the wiringPi source code says that only
+BCM_GPIO_4 and BCM_GPIO_21 are usable as GP Clock, but
+doesn't explain why.  On the other hand, pinout.xyz shows
+BCM_GPIO_4, BCM_GPIO_5, and BCM_GPIO_6 as supporting
+GP Clock, but it doesn't mention BCM_GPIO_21.
+
+https://github.com/WiringPi/WiringPi/blob/e687f3f2c62079c48c89cbca5a5ebe8ec259d1c0/wiringPi/wiringPi.c#L575
+
+https://pinout.xyz/pinout/gpclk
+-}
+otherFunc  7 = [("Clock", purple', white')] -- BCM_GPIO_4
+otherFunc 29 = [("Clock", purple', white')] -- BCM_GPIO_5
+otherFunc 31 = [("Clock", purple', white')] -- BCM_GPIO_6
+otherFunc 40 = [("Clock", purple', white')] -- BCM_GPIO_21
 otherFunc 32 = [("PWM", purple', white')]
 otherFunc 33 = [("PWM", purple', white')]
 otherFunc 12 = [("PWM", purple', white')]
