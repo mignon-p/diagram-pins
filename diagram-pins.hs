@@ -266,12 +266,22 @@ drawing = do
   mapM_ handlePin [1..40]
   mapM_ handlePin [49..56]
 
+squareSize = 700
+outputFile = "pin-diagram.png"
+
 main :: IO ()
 main = do
   let white = PixelRGBA8 255 255 255 255
       w = 2 * (30 + 4 * (blobLen + 10))
       h = 29 * rowHeight
-      img = renderDrawing (round w) (round h) white $
-            withTransformation (translate $ V2 (w / 2) rowHeight) $ drawing
+      w' = max w squareSize
+      h' = max h squareSize
+      margin = (h' - h) / 2
+      img = renderDrawing (round w') (round h') white $
+            withTransformation (translate $ V2 (w' / 2) (rowHeight + margin)) drawing
       meta = M.singleton M.Software "https://github.com/ppelleti/diagram-pins"
-  L.writeFile "pin-diagram.png" $ encodePngWithMetadata meta img
+  L.writeFile outputFile $ encodePngWithMetadata meta img
+  putStrLn "Try processing the output file with:"
+  putStrLn $
+    "zopflipng -m --keepchunks=tEXt,zTXt,iTXt,gAMA " ++
+    outputFile ++ " pin-diagram-z.png"
